@@ -1,0 +1,27 @@
+"""Shared matplotlib style for thesis plots."""
+
+PLOT_STYLE = {
+    "font.family": "serif",
+    "font.serif": ["Times New Roman", "DejaVu Serif", "Computer Modern Roman"],
+    "mathtext.fontset": "cm",
+    "font.size": 10,
+    "axes.titlesize": 11,
+    "axes.labelsize": 10,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
+    "legend.fontsize": 9,
+    "figure.dpi": 300,
+    "savefig.dpi": 300,
+    "savefig.bbox": "tight",
+    "savefig.pad_inches": 0.05,
+    "axes.linewidth": 0.8,
+    "xtick.major.width": 0.6,
+    "ytick.major.width": 0.6,
+    "xtick.direction": "in",
+    "ytick.direction": "in",
+    "axes.grid": True,
+    "grid.alpha": 0.3,
+    "grid.linewidth": 0.5,
+    "lines.linewidth": 1.5,
+    "lines.markersize": 5,
+}
