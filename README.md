@@ -1,6 +1,6 @@
 # Investigating Local Robustness of TabPFN on Binary Classification Tasks
 
-Experiment code for a thesis investigating the adversarial robustness of [TabPFN](https://github.com/automl/TabPFN) (a tabular prior-data fitted network) compared to classical machine learning models and standard neural networks. All attacks operate in the L-infinity threat model using FGSM ([Goodfellow et al., 2015]((https://arxiv.org/abs/1412.6572)) and PGD ([Madry et al., 2018]((https://arxiv.org/abs/1706.06083)).
+Experiment code for a thesis investigating the adversarial robustness of [TabPFN](https://github.com/automl/TabPFN) (a tabular prior-data fitted network) compared to classical machine learning models and standard neural networks. All attacks operate in the L-infinity threat model using FGSM ([Goodfellow et al., 2015](https://arxiv.org/abs/1412.6572)) and PGD ([Madry et al., 2018](https://arxiv.org/abs/1706.06083)).
 
 ## Project Structure
 
