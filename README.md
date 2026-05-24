@@ -1,174 +1,114 @@
 # Investigating Local Robustness of TabPFN on Binary Classification Tasks
 
-Experiment code for a thesis investigating the adversarial robustness of [TabPFN](https://github.com/automl/TabPFN) (a tabular prior-data fitted network) compared to classical machine learning models and standard neural networks. All attacks operate in the L-infinity threat model using FGSM ([Goodfellow et al., 2015](https://arxiv.org/abs/1412.6557)) and PGD ([Madry et al., 2018](https://arxiv.org/abs/1706.06083)).
+This repository contains the code for evaluating the adversarial robustness of [TabPFN](https://github.com/PriorLabs/TabPFN) (a tabular prior-data fitted network) under L-infinity threat models, comparing it against classical ML models and neural networks.
 
 ## Project Structure
 
 ```
 .
-├── attacks_common.py             # AttackResult dataclass and shared helpers
-├── fgsm_attack.py                # FGSM attacks for TabPFN, PyTorch NNs, and sklearn
-├── pgd_attack.py                 # PGD attacks for TabPFN, PyTorch NNs, and sklearn
-├── upper_bounds.py               # Binary-search routines for minimum adversarial epsilon
-├── raw_predict_with_grad.py      # Gradient-enabled inference patch for TabPFN
-├── helpers.py                    # Dataset creation, evaluation loops, I/O utilities
-├── plot_style.py                 # Shared matplotlib rcParams for thesis figures
+├── helpers/                        # Core modules
+│   ├── AttackResult.py             # Frozen dataclass for attack outputs
+│   ├── pgd_attack.py              # PGD L_infty attacks for TabPFN, sklearn, and NN models
+│   ├── transfer_attack.py         # Cross-model adversarial transfer logic
+│   ├── enable_grad_raw_predict.py # Gradient-enabled inference patch for TabPFN
+│   ├── data_handlers.py           # Dataset loading (synthetic + UCI) and preprocessing
+│   ├── mlp.py                     # Standard and adversarially-trained MLP classifiers
+│   ├── model_helpers.py           # Model prediction and training utilities
+│   └── attack_helpers.py          # Logit prediction helpers and tensor conversion
 │
-├── comparison_with_classical_models/
-│   ├── run_experiment_2b.py      # Exp 2b: TabPFN vs LogReg vs SVM (synthetic)
-│   ├── plot_experiment_2b.py     # Per-dataset figures
-│   └── plot_experiment_2b_aggregate.py  # Aggregated 2x2 panel figure
+├── experiments/                    # Experiment frameworks
+│   ├── EpsilonSweepExperiment.py  # Attack success rates across epsilon budgets
+│   ├── TransferExperiment.py      # Cross-model transfer attack evaluation
+│   └── KBinarySearchExperiment.py # Binary search for minimum adversarial epsilon
 │
-├── comparison_with_nns/
-│   ├── run_experiment_3.py       # Exp 3: TabPFN vs MLP vs MLP-Adv (synthetic)
-│   ├── plot_experiment_3.py      # Per-dataset figures
-│   └── plot_experiment_3_aggregate.py  # Aggregated 2x2 panel figure
+├── tests/                          # Pytest regression tests
+│   ├── test_core.py
+│   └── conftest.py
 │
-├── data_size_scaling/
-│   ├── run_experiment_5.py       # Exp 5: Attack runtime vs training-set size
-│   └── plot_experiment_5.py      # Runtime scaling figures
-│
-├── feature_dim_scaling/
-│   ├── run_experiment_6.py       # Exp 6: Attack runtime vs feature dimensionality
-│   └── plot_experiment_6.py      # Runtime scaling figures
-│
-├── robustness_vs_features/
-│   ├── run_experiment_8.py       # Exp 8: Robustness bounds across feature dimensions
-│   └── plot_experiment_8.py      # ECDF grid figures
-│
-├── transferability/
-│   ├── run_experiment_10.py      # Exp 10: Adversarial transferability (Breast Cancer)
-│   └── plot_experiment_10.py     # Transfer-rate heatmaps and line plots
-│
-└── winsconsin_edc/
-    ├── run_experiment.py         # Robustness upper-bound distributions (Breast Cancer)
-    └── plot_experiment.py        # Combined ECDF panels
+├── classical_comparison.py         # TabPFN vs LogReg vs SVM (FGSM/PGD)
+├── nn_comparison.py                # TabPFN vs MLP vs Adversarial MLP (FGSM/PGD)
+├── feature_experiment.py           # ERD vs feature dimensionality
+├── time_data.py                    # Attack runtime vs training data size
+├── time_features.py                # Runtime scaling across features
+├── four_transfer.py                # Transfer attacks on Sonar, Ionosphere, Spambase, Haberman
+├── wisconsin_transfer.py           # Transfer attacks on Breast Cancer dataset
+└── erd_winsconsin.py               # ERD on Breast Cancer
 ```
-
-Each experiment directory contains a `results/` folder (pickled experiment data) and a `figures/` folder (generated PDFs) after execution.
 
 ## Experiments
 
-| # | Name | Description |
-|---|------|-------------|
-| 2b | Classical Model Comparison | FGSM/PGD attack success rates for TabPFN, Logistic Regression, and SVM on synthetic data across multiple datasets and epsilon values |
-| 3 | Neural Network Comparison | Same evaluation for TabPFN, a standard MLP, and an adversarially-trained MLP (PGD-AT) |
-| 5 | Runtime vs Data Size | Per-sample and total attack runtime as training-set size increases |
-| 6 | Runtime vs Features | Per-sample and total attack runtime as feature dimensionality increases |
-| 8 | Robustness vs Features | Robustness upper bounds across feature dimensionalities (5, 15, 25 features) |
-| 10 | Transferability | Cross-model adversarial transferability between TabPFN, LogReg, and SVM |
-| -- | Robustness Distributions | Per-sample robustness upper bounds for TabPFN, LogReg, and SVM on Breast Cancer with FGSM, PGD, and transfer attacks |
+| Experiment | Script | Description |
+|---|---|---|
+| Classical Comparison | `classical_comparison.py` | FGSM attack success rates across TabPFN, Logistic Regression, and SVM on synthetic data |
+| NN Comparison | `nn_comparison.py` | FGSM/PGD comparison of TabPFN, standard MLP, and adversarially-trained MLP |
+| Runtime vs Data Size | `time_data.py` | Per-sample and total attack runtime as training set size increases |
+| Runtime & ERD vs Features | `feature_experiment.py`, `time_features.py` | Attack runtime & ERD as feature dimensionality increases |
+| Robustness Bounds | `erd_winsconsin.py` | Per-sample robustness bounds via binary search on Breast Cancer |
+| Transferability | `four_transfer.py`, `wisconsin_transfer.py` | Cross-model adversarial transferability on UCI datasets |
 
-## Shared Modules
+## Attack Methods
 
-### `attacks_common.py`
+All attacks operate under the **L-infinity** threat model:
 
-Defines the `AttackResult` dataclass returned by all attack functions, along with shared helpers (`_predict_logits`, `_to_numpy_1d`, `_to_python_label`).
+- **FGSM** (Fast Gradient Sign Method) — single-step attack (`steps=1, restarts=1`)
+- **PGD** (Projected Gradient Descent) — multi-step, multi-restart attack with step size `alpha = 2 * eps / steps`
 
-### `fgsm_attack.py`
+### Attacking TabPFN
 
-Single-step L-infinity adversarial perturbation: `x_adv = x + eps * sign(grad_x L)`.
+TabPFN runs inference under `torch.inference_mode()`, which disables gradient computation. The `enable_grad_raw_predict.py` module patches this to allow gradient flow through the model, enabling white-box adversarial attacks via TabPFN's `differentiable_input=True` mode.
 
-| Function | Target Model |
-|----------|-------------|
-| `fgsm_attack()` | TabPFN (differentiable `_raw_predict`) |
-| `fgsm_attack_nn()` | Any `torch.nn.Module` producing logits |
-| `fgsm_attack_sklearn()` | LogisticRegression, LinearSVC, SVC (linear kernel) |
+## Datasets
 
-### `pgd_attack.py`
+| Dataset | Source |
+|---|---|
+| Synthetic | `sklearn.datasets.make_classification` |
+| Breast Cancer | scikit-learn |
+| Sonar | UCI #151 |
+| Ionosphere | UCI #52 |
+| Banknote | UCI #267 |
+| Haberman | UCI #43 |
+| Spambase | UCI #94 |
 
-Multi-step, multi-restart L-infinity attack with step size `alpha = 2 * eps / steps`.
+All datasets use a 75/25 stratified train/test split with standard scaling fitted on the training set.
 
-| Function | Target Model |
-|----------|-------------|
-| `pgd_linf_restarts()` | TabPFN (differentiable `_raw_predict`) |
-| `pgd_attack_nn()` | Any `torch.nn.Module` producing logits |
-| `pgd_attack_sklearn()` | LogisticRegression, LinearSVC, SVC (linear kernel) |
+## Models
 
-### `upper_bounds.py`
-
-Binary-search routines that find the minimum epsilon causing misclassification for a given sample. Each function returns the threshold epsilon, `0.0` if the sample is already misclassified, or `None` if it remains robust beyond the search range.
-
-| Function | Attack | Model |
-|----------|--------|-------|
-| `find_upper_bound()` | FGSM | TabPFN |
-| `find_upper_bound_pgd()` | PGD | TabPFN |
-| `find_upper_bound_sklearn()` | Any | sklearn linear classifiers |
-| `find_upper_bound_transfer()` | Any | Cross-model (source -> TabPFN) |
-
-### `raw_predict_with_grad.py`
-
-TabPFN's default `_raw_predict` runs under `torch.inference_mode()`, which disables autograd. This module provides `raw_predict_with_grad`, a drop-in replacement that keeps the computation graph alive, and `enable_grad_raw_predict`, which applies it via monkey-patching:
-
-```python
-from raw_predict_with_grad import raw_predict_with_grad, enable_grad_raw_predict
-
-clf = TabPFNClassifier.create_default_for_version(ModelVersion.V2, differentiable_input=True)
-clf.fit(X_train, y_train)
-enable_grad_raw_predict(clf, raw_predict_with_grad)
-```
-
-### `helpers.py`
-
-Dataset creation (synthetic and Breast Cancer), per-sample attack evaluation loops, result aggregation, console formatting, and pickle-based I/O. Includes a custom unpickler that maps CUDA tensors to CPU and handles backward-compatible deserialization of `AttackResult`.
-
-### `plot_style.py`
-
-Exports `PLOT_STYLE`, a shared matplotlib rcParams dict used by all plotting scripts to produce consistent thesis-quality figures.
-
-## Key Metrics
-
-The `experiment_result` class in `helpers.py` aggregates `AttackResult` objects over a test set and computes:
-
-- **ASR** (Attack Success Rate) -- fraction of correctly-classified samples that were fooled
-- **Adversarial Accuracy** -- fraction of all samples still correct under attack
-- **Clean Accuracy** -- fraction of all samples correct without attack
+- **TabPFN v2** — Prior-data fitted network for tabular data
+- **Logistic Regression** — scikit-learn `LogisticRegression`
+- **SVM** — scikit-learn `LinearSVC` / `SVC`
+- **Standard MLP** — 2-layer fully connected network (64 → 32 → 2)
+- **Adversarial MLP** — Same architecture trained with PGD adversarial training
 
 ## Requirements
 
-- Python 3.10+
-- [PyTorch](https://pytorch.org/)
-- [TabPFN](https://github.com/automl/TabPFN) (v2)
-- [scikit-learn](https://scikit-learn.org/)
-- [NumPy](https://numpy.org/)
-- [Matplotlib](https://matplotlib.org/)
-- [tqdm](https://github.com/tqdm/tqdm)
-
-Install dependencies:
-
-```bash
-pip install torch tabpfn scikit-learn numpy matplotlib tqdm
-```
+- Python 3.x
+- PyTorch
+- TabPFN v2
+- scikit-learn
+- NumPy
+- Matplotlib
+- tqdm
+- ucimlrepo
+- pytest (for tests)
 
 ## Usage
 
-### Running an experiment
-
-Each experiment can be run from the project root:
+Run any experiment script directly:
 
 ```bash
-python comparison_with_classical_models/run_experiment_2b.py
+python classical_comparison.py
+python nn_comparison.py
+python four_transfer.py
 ```
 
-Results are serialised to `<experiment_dir>/results/<name>.pkl` via pickle.
-
-To use GPU acceleration, edit the `_device` variable at the bottom of each runner script (default is `"cuda"`).
-
-### Generating figures
-
-After running an experiment, generate thesis-quality figures:
+Run the test suite:
 
 ```bash
-python comparison_with_classical_models/plot_experiment_2b.py
-python comparison_with_classical_models/plot_experiment_2b_aggregate.py
+pytest tests/
 ```
 
-Figures are saved as PDF to `<experiment_dir>/figures/`.
+> **Note:** Tests marked `@pytest.mark.slow` (TabPFN-dependent) are excluded by default. Run them with `pytest --runslow`.
 
-## Reproducibility
+## License
 
-- Synthetic datasets use deterministic `random_state` seeds (42, 43, ... for multi-dataset experiments)
-- All data splits are stratified
-- Features are standardised with `StandardScaler` (fit on train, transform on test)
-- PGD attacks accept an optional `seed` parameter for reproducible random restarts
-- Experiment data (including all per-sample `AttackResult` objects) is pickled for post-hoc analysis
+This project is part of a Bachelors's thesis in Data Science and AI.
