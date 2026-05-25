@@ -2,7 +2,8 @@ import torch
 from experiments.EpsilonSweepExperiment import EpsilonSweepExperiment
 from helpers.data_handlers import create_synthetic_dataset
 from helpers.pgd_attack import pgd_linf_restarts, pgd_attack_nn
-from tabpfn import TabPFNClassifier, ModelVersion
+from tabpfn import TabPFNClassifier
+from tabpfn.constants import ModelVersion
 from helpers.mlp import StandardMLPClassifier, AdversarialMLPClassifier
 
 _device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

@@ -4,7 +4,8 @@ from data_handlers import load_sonar_dataset, load_ionosphere_dataset, load_spam
 from pgd_attack import pgd_linf_restarts, pgd_attack_sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC, SVC
-from tabpfn import TabPFNClassifier, ModelVersion
+from tabpfn import TabPFNClassifier
+from tabpfn.constants import ModelVersion
 
 _device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

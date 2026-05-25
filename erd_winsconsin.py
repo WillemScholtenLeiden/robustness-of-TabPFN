@@ -5,7 +5,8 @@ from helpers.pgd_attack import pgd_linf_restarts, pgd_attack_sklearn
 from helpers.transfer_attack import transfer_attack
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
-from tabpfn import TabPFNClassifier, ModelVersion
+from tabpfn import TabPFNClassifier
+from tabpfn.constants import ModelVersion
 
 _device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

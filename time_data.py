@@ -2,7 +2,8 @@ import torch
 from experiments.EpsilonSweepExperiment import EpsilonSweepExperiment
 from helpers.data_handlers import create_synthetic_dataset
 from helpers.pgd_attack import pgd_linf_restarts, pgd_attack_sklearn
-from tabpfn import TabPFNClassifier, ModelVersion
+from tabpfn import TabPFNClassifier
+from tabpfn.constants import ModelVersion
 
 exp_args = {
     'eps': [0.01] + [i*0.1 for i in range(1, 11)]

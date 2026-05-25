@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC, SVC
 from helpers.AttackResult import AttackResult
-from helpers.attack_helpers import *
+from helpers.attack_helpers import _predict_logits, _to_numpy_1d, _to_python_label
 from helpers.mlp import SimpleNN
 
 def pgd_linf_restarts(
