@@ -1,5 +1,5 @@
 import torch
-import tqdm
+from tqdm import tqdm
 import torch.nn.functional as F
 import numpy as np
 from sklearn.linear_model import LogisticRegression
