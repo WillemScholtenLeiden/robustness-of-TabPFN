@@ -2,7 +2,7 @@ import os
 import time
 import pickle
 import torch
-import tqdm
+from tqdm import tqdm
 import gc
 import numpy as np
 import matplotlib as mpl

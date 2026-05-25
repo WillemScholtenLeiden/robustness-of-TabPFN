@@ -2,7 +2,7 @@ import os
 import time
 import pickle
 import torch
-import tqdm
+from tqdm import tqdm
 import gc
 import numpy as np
 from pprint import pprint
@@ -67,7 +67,7 @@ class EpsilonSweepExperiment:
     def perform_experiment(self):
         run_start = time.perf_counter()
         
-        for dataset_idx, (loader, data_args) in enumerate(tqdm.tqdm(self.dataset_loaders, desc='datasets')):
+        for dataset_idx, (loader, data_args) in enumerate(tqdm(self.dataset_loaders, desc='datasets')):
             self.results[dataset_idx] = {name: {} for (name, _, _, _) in self.models}
             if self.record_time:
                 self.timings[dataset_idx] = {name: {} for (name, _, _, _) in self.models}
