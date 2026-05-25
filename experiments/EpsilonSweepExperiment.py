@@ -34,7 +34,7 @@ class EpsilonSweepExperiment:
         per_sample_times = []
         total_start = time.perf_counter() if self.record_time else None
 
-        for i in range(len(X_test)):
+        for i in tqdm(range(len(X_test)), desc="Data points", leave=False):
             x = X_test[i]
             y = y_test[i]
 

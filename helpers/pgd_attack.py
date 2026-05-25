@@ -1,5 +1,4 @@
 import torch
-from tqdm import tqdm
 import torch.nn.functional as F
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -38,7 +37,7 @@ def pgd_linf_restarts(
     best_x = x_nat.clone().detach()
     best_pred = pred_nat
 
-    for _ in tqdm(range(restarts), desc="Restarts", leave=False):
+    for _ in range(restarts):
         noise = torch.empty_like(x_nat).uniform_(-eps, eps, generator=g)
 
         x = (x_nat + noise).detach()
