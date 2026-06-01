@@ -29,7 +29,7 @@ attack_args_PGD = {
 dataset_loaders = []
 
 # One garbage run to warm up the GPU and avoid outliers in timing
-dataset_loaders.append((create_synthetic_dataset, {'random_state': 42, 'n_samples': 4, 'n_features': 2}))
+dataset_loaders.append((create_synthetic_dataset, {'random_state': 42, 'n_samples': 8, 'n_features': 2}))
 
 dataset_loaders.append((create_synthetic_dataset, {'n_features': 2, **data_args}))
 
