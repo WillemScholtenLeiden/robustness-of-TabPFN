@@ -11,7 +11,7 @@ exp_args = {
 
 data_args = {
     'random_state': 42,
-    'features': 5
+    'n_features': 5
 }
 
 attack_args_FGSM = {
@@ -29,10 +29,10 @@ attack_args_PGD = {
 dataset_loaders = []
 
 # One garbage run to warm up the GPU and avoid outliers in timing
-dataset_loaders.append((create_synthetic_dataset, {'random_state': 42, 'samples': 4, 'features': 2}))
+dataset_loaders.append((create_synthetic_dataset, {'random_state': 42, 'n_samples': 4, 'n_features': 2}))
 
 for i in range(1, 5):
-    dataset_loaders.append((create_synthetic_dataset, {'samples': i*24, **data_args}))
+    dataset_loaders.append((create_synthetic_dataset, {'n_samples': i*24, **data_args}))
 
 models = []
 
