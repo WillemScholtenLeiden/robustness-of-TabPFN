@@ -19,7 +19,8 @@ import numpy as np
 import pytest
 import torch
 from sklearn.linear_model import LogisticRegression
-from tabpfn import ModelVersion, TabPFNClassifier
+from tabpfn import TabPFNClassifier
+from tabpfn.constants import ModelVersion
 
 from helpers.AttackResult import AttackResult
 from helpers.attack_helpers import _to_numpy_1d, _to_python_label
