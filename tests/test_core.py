@@ -60,9 +60,9 @@ def trained_logreg(synthetic_data):
 
 
 @pytest.fixture(scope="module")
-def trained_mlp(synthetic_data):
+def trained_mlp(synthetic_data, device):
     X_train, y_train, _, _ = synthetic_data
-    clf = StandardMLPClassifier(epochs=30, lr=1e-2)
+    clf = StandardMLPClassifier(epochs=30, lr=1e-2, device=device)
     clf.fit(X_train, y_train)
     return clf
 
@@ -126,8 +126,8 @@ class TestSyntheticDataset:
 
     def test_standardized(self, synthetic_data):
         X_train, _, _, _ = synthetic_data
-        assert torch.allclose(X_train.mean(dim=0), torch.zeros(6), atol=1e-5)
-        assert torch.allclose(X_train.std(dim=0, unbiased=False), torch.ones(6), atol=1e-5)
+        assert torch.allclose(X_train.mean(dim=0), torch.zeros(6, device=X_train.device), atol=1e-5)
+        assert torch.allclose(X_train.std(dim=0, unbiased=False), torch.ones(6, device=X_train.device), atol=1e-5)
 
     def test_determinism(self):
         a = create_synthetic_dataset(n_samples=40, n_features=4, random_state=123)
@@ -165,7 +165,7 @@ EPS = 0.25
 
 
 def _linf(a: torch.Tensor, b: torch.Tensor) -> float:
-    return float((a - b).abs().max().item())
+    return float((a.to(b.device) - b).abs().max().item())
 
 
 class TestPGDSklearn:
