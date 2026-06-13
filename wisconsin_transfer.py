@@ -10,9 +10,7 @@ from tabpfn.constants import ModelVersion
 _device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 exp_args = {
-    'eps_low': 0.0, 
-    'eps_high': 4.0, 
-    'tol': 1e-3
+    'eps': [0.25, 0.5, 0.75, 1.0]
 }
 
 data_args = {}
