@@ -32,16 +32,21 @@ from helpers.transfer_attack import transfer_attack
 
 
 @pytest.fixture(scope="module")
-def synthetic_data():
+def device():
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+@pytest.fixture(scope="module")
+def synthetic_data(device):
     return create_synthetic_dataset(
-        n_samples=80, n_features=6, test_size=0.25, random_state=0
+        n_samples=80, n_features=6, test_size=0.25, random_state=0, device=device
     )
 
 
 @pytest.fixture(scope="module")
-def tiny_data():
+def tiny_data(device):
     return create_synthetic_dataset(
-        n_samples=20, n_features=4, test_size=0.25, random_state=0
+        n_samples=20, n_features=4, test_size=0.25, random_state=0, device=device
     )
 
 
@@ -62,10 +67,10 @@ def trained_mlp(synthetic_data):
 
 
 @pytest.fixture(scope="module")
-def trained_tabpfn(tiny_data):
+def trained_tabpfn(tiny_data, device):
     X_train, y_train, _, _ = tiny_data
     clf = TabPFNClassifier.create_default_for_version(
-        ModelVersion.V2, differentiable_input=True
+        ModelVersion.V2, differentiable_input=True, device=device
     )
     clf.fit(X_train, y_train)
     enable_grad_raw_predict(clf, raw_predict_with_grad)
@@ -237,10 +242,10 @@ class TestPredictTarget:
         assert pred in (0, 1)
 
     @pytest.mark.slow
-    def test_train_models_dispatches_correctly(self, tiny_data):
+    def test_train_models_dispatches_correctly(self, tiny_data, device):
         X_train, y_train, _, _ = tiny_data
         tabpfn = TabPFNClassifier.create_default_for_version(
-            ModelVersion.V2, differentiable_input=True
+            ModelVersion.V2, differentiable_input=True, device=device
         )
         logreg = LogisticRegression(max_iter=500)
         models = [("TabPFN", tabpfn, None, None), ("logreg", logreg, None, None)]

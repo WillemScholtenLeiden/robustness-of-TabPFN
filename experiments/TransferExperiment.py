@@ -7,7 +7,6 @@ import numpy as np
 import gc
 from pprint import pprint
 from helpers.model_helpers import _train_models, _predict_target
-from AttackResults import AttackResults
 
 class TransferExperiment:
     models = list()
@@ -17,7 +16,7 @@ class TransferExperiment:
     exp_args = dict()
     total_run_time = float()
 
-    def __init__(self, models: list, dataset_loaders: list, exp_args: dict = None):
+    def __init__(self, dataset_loaders: list, models: list, exp_args: dict = None):
         self.models = models
         self.dataset_loaders = dataset_loaders
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

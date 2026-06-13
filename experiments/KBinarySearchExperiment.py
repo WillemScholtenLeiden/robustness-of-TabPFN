@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib as mpl
 from pprint import pprint
 from helpers.model_helpers import _train_models
-from AttackResults import AttackResults
 
 class KBinarySearchExperiment:
     k = int()

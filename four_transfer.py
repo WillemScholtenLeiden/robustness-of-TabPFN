@@ -1,7 +1,7 @@
 import torch
 from experiments.TransferExperiment import TransferExperiment
-from data_handlers import load_sonar_dataset, load_ionosphere_dataset, load_spambase_dataset, load_haberman_dataset
-from pgd_attack import pgd_linf_restarts, pgd_attack_sklearn
+from helpers.data_handlers import load_sonar_dataset, load_ionosphere_dataset, load_spambase_dataset, load_haberman_dataset
+from helpers.pgd_attack import pgd_linf_restarts, pgd_attack_sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC, SVC
 from tabpfn import TabPFNClassifier

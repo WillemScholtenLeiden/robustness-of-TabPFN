@@ -1,7 +1,7 @@
 import torch
 from experiments.TransferExperiment import TransferExperiment
-from data_handlers import load_wisconsin
-from pgd_attack import pgd_linf_restarts, pgd_attack_sklearn
+from helpers.data_handlers import load_breast_cancer_dataset
+from helpers.pgd_attack import pgd_linf_restarts, pgd_attack_sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC, SVC
 from tabpfn import TabPFNClassifier
@@ -24,7 +24,7 @@ attack_args = {
 }
 
 dataset_loaders = [
-    (load_wisconsin, data_args)
+    (load_breast_cancer_dataset, data_args)
 ]
 
 TabPFN_clf = TabPFNClassifier.create_default_for_version(ModelVersion.V2, differentiable_input=True, device=_device)
