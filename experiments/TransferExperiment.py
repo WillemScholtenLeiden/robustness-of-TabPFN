@@ -54,7 +54,7 @@ class TransferExperiment:
 
     def perform_experiment(self):
         run_start = time.perf_counter()
-        
+
         for dataset_idx, (loader, data_args) in enumerate(tqdm(self.dataset_loaders, desc='datasets')):
             self._init_dataset_results(dataset_idx)
             X_train, y_train, X_test, y_test = loader(device=self.device, **data_args)
@@ -62,18 +62,29 @@ class TransferExperiment:
 
             for i in tqdm(range(len(X_test)), desc='samples', leave=False):
                 x, y = X_test[i], y_test[i]
+                y_true = int(y.item()) if isinstance(y, torch.Tensor) else int(y)
 
                 for eps in self.exp_args['eps']:
                     for source_model in self.models:
-                        for target_model in self.models:
-                            transferred = self.transfer_attack(eps, source_model, target_model, x, y)
-                            self.results[dataset_idx][eps][source_model[0]][target_model[0]].append(transferred)
+                        src_name, src_clf, attack_fn, attack_args = source_model
+                        result = attack_fn(src_clf, x, y, eps=eps, **attack_args)
 
-                gc.collect()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                        if result.pred_adv == y_true:
+                            for target_model in self.models:
+                                self.results[dataset_idx][eps][src_name][target_model[0]].append(None)
+                            continue
+
+                        x_adv = result.x_adv
+                        for target_model in self.models:
+                            pred_target = _predict_target(target_model, x_adv)
+                            self.results[dataset_idx][eps][src_name][target_model[0]].append(pred_target != y_true)
+
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
         self.total_run_time = time.perf_counter() - run_start
+
 
     def transfer_rate(self, dataset_idx: int, eps: float, source_name: str, target_name: str) -> float:
         outcomes = self.results[dataset_idx][eps][source_name][target_name]
